@@ -30,6 +30,7 @@ public class DayActivity extends AppCompatActivity {
     public void headClicked(View head) {
         // i.e. the ListView
         ListView grandParent = (ListView) head.getParent().getParent().getParent();
+        // grandParent.setItemsCanFocus(true);
         // i.e. @id/exercise_item
         LinearLayout parent = (LinearLayout) head.getParent();
         LinearLayout exerciseBody = (LinearLayout) parent.findViewById(R.id.exercise_body);
