@@ -1,15 +1,30 @@
 package com.noobfitness.noobfitness;
 
+import android.animation.ArgbEvaluator;
 import android.animation.LayoutTransition;
+import android.animation.ObjectAnimator;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+
+import static java.security.AccessController.getContext;
 
 public class DayActivity extends AppCompatActivity {
 
@@ -21,16 +36,20 @@ public class DayActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         ArrayList<ExerciseItem> exerciseItems = bundle.getParcelableArrayList("exerciseItems");
 
-        ExerciseItemAdapter itemsAdapter = new ExerciseItemAdapter(this, exerciseItems);
-        ListView listView = (ListView) findViewById(R.id.workout_layout);
-        listView.setAdapter(itemsAdapter);
+        // TODO
+        ExerciseItemAdapter itemsAdapter = new ExerciseItemAdapter(exerciseItems);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.workout_layout);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(itemsAdapter);
 
     }
 
+
+
+
     public void headClicked(View head) {
         // i.e. the ListView
-        ListView grandParent = (ListView) head.getParent().getParent().getParent();
-        // grandParent.setItemsCanFocus(true);
+        RecyclerView grandParent = (RecyclerView) head.getParent().getParent().getParent();
         // i.e. @id/exercise_item
         LinearLayout parent = (LinearLayout) head.getParent();
         LinearLayout exerciseBody = (LinearLayout) parent.findViewById(R.id.exercise_body);
