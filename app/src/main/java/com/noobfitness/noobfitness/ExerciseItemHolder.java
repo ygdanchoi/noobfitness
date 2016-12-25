@@ -50,10 +50,8 @@ public class ExerciseItemHolder extends RecyclerView.ViewHolder {
         weightValueEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) { }
-
             @Override
             public void afterTextChanged(Editable s) {
                 exerciseItem.setWeightValue(s.toString());
@@ -68,19 +66,19 @@ public class ExerciseItemHolder extends RecyclerView.ViewHolder {
 
     public void bindData(ExerciseItem exerciseItem) {
         this.exerciseItem = exerciseItem;
-        // TODO
-        nameTextView.setText(exerciseItem.getName());
-        secondaryTextView.setText(exerciseItem.getSecondary());
-        muscleTextView.setText(exerciseItem.getMuscle());
-        reps = exerciseItem.getReps();
-        repCounter.setText("0/" + reps.length);
-        repsProgress.setMax(360);
-        repsLayout = generateCheckboxes(thisView, exerciseItem);
-        weightValueEditText.setText(exerciseItem.getWeightValue());
-        weightDescriptionEditText.setText(exerciseItem.getWeightDescription());
-        drawableImageView.setImageResource(exerciseItem.getDrawable());
-        exerciseItem.setListItemView(thisView);
-
+        if (exerciseItem.getListItemView() == null) {
+            nameTextView.setText(exerciseItem.getName());
+            secondaryTextView.setText(exerciseItem.getSecondary());
+            muscleTextView.setText(exerciseItem.getMuscle());
+            reps = exerciseItem.getReps();
+            repCounter.setText("0/" + reps.length);
+            repsProgress.setMax(360);
+            repsLayout = generateCheckboxes(thisView, exerciseItem);
+            weightValueEditText.setText(exerciseItem.getWeightValue());
+            weightDescriptionEditText.setText(exerciseItem.getWeightDescription());
+            drawableImageView.setImageResource(exerciseItem.getDrawable());
+            exerciseItem.setListItemView(thisView);
+        }
     }
 
     private LinearLayout generateCheckboxes(View listItemView, ExerciseItem exerciseItem) {
