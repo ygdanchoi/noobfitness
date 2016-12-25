@@ -44,9 +44,6 @@ public class DayActivity extends AppCompatActivity {
 
     }
 
-
-
-
     public void headClicked(View head) {
         // i.e. the ListView
         RecyclerView grandParent = (RecyclerView) head.getParent().getParent().getParent();
