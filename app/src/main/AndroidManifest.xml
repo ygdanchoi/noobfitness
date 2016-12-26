@@ -15,8 +15,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.noobfitness.noobfitness.DayActivity" />
-        <activity android:name="com.noobfitness.noobfitness.RoutineActivity" />
+        <activity android:name="com.noobfitness.noobfitness.ExercisesActivity" />
+        <activity android:name="com.noobfitness.noobfitness.RoutinesActivity" />
     </application>
 
 </manifest>

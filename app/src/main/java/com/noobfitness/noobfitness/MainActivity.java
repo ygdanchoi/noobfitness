@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         fourDayDefault.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(v.getContext(), RoutineActivity.class);
+                Intent i = new Intent(v.getContext(), RoutinesActivity.class);
                 startActivity(i);
             }
         });
