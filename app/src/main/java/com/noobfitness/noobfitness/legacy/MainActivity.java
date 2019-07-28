@@ -54,6 +54,8 @@ public class MainActivity extends Activity {
     TextView mFullName;
     ImageView mProfileView;
 
+    Button fourDayDefault;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,8 +75,8 @@ public class MainActivity extends Activity {
 
         LinearLayout mainLinearLayout = findViewById(R.id.activity_main);
 
-        Button fourDayDefault = new Button(this);
-        fourDayDefault.setText("4-day default routine");
+        fourDayDefault = new Button(this);
+        fourDayDefault.setText("hello world");
         fourDayDefault.setGravity(Gravity.LEFT);
         fourDayDefault.setPadding(96, 96, 96, 96);
         fourDayDefault.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
@@ -183,7 +185,7 @@ public class MainActivity extends Activity {
                                     mMainActivity.mFullName.setText(fullName);
                                 }
 
-                                Toast.makeText(mMainActivity, routines, Toast.LENGTH_SHORT).show();
+                                mMainActivity.fourDayDefault.setText(routines);
                             }
                         }
                     }.execute(accessToken);
