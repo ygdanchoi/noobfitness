@@ -1,5 +1,6 @@
 package com.noobfitness.noobfitness.auth
 
+import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -19,18 +20,18 @@ import javax.inject.Singleton
 @Singleton
 class LoginController @Inject constructor(private val context: Context) {
 
-    private val authorizationService = AuthorizationService(context)
     private val clientId = context.getString(R.string.google_client_id)
+    private val authorizationService = AuthorizationService(context)
 
-    fun login() {
+    private var authState: AuthState? = null
+
+    fun login(activity: Activity) {
         val request = AuthorizationRequest.Builder(CONFIG, clientId, CODE, REDIRECT_URI)
                 .setScopes(SCOPES)
                 .build()
 
-        val postAuthIntent = Intent(context, MainActivity::class.java);
-        val pendingIntent = PendingIntent.getActivity(context, request.hashCode(), postAuthIntent, 0)
-
-        authorizationService.performAuthorizationRequest(request, pendingIntent)
+        val intent = authorizationService.getAuthorizationRequestIntent(request)
+        activity.startActivityForResult(intent, 100)
     }
 
     fun logout() {
@@ -41,11 +42,13 @@ class LoginController @Inject constructor(private val context: Context) {
     }
 
     fun setAuthState(authState: AuthState?) {
+        this.authState = authState
+
         if (authState != null) {
             context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
                     .edit()
                     .putString(AUTH_STATE, authState.jsonSerializeString())
-                    .commit()
+                    .apply()
         } else {
             context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
                     .edit()
@@ -55,6 +58,10 @@ class LoginController @Inject constructor(private val context: Context) {
     }
 
     fun getAuthState(): AuthState? {
+        if (authState != null) {
+            return authState
+        }
+
         val jsonString = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
                 .getString(AUTH_STATE, null)
 

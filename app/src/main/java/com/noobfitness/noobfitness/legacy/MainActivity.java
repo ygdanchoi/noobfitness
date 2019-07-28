@@ -47,8 +47,6 @@ public class MainActivity extends Activity {
     @Inject
     LoginController loginController;
 
-    AuthState mAuthState;
-
     Button mMakeApiCall;
     Button mSignOut;
     TextView mGivenName;
@@ -71,7 +69,6 @@ public class MainActivity extends Activity {
         mFullName = findViewById(R.id.fullName);
         mProfileView = findViewById(R.id.profileImage);
 
-        handleAuthorizationResponse(getIntent());
         enablePostAuthorizationFlows();
 
         LinearLayout mainLinearLayout = findViewById(R.id.activity_main);
@@ -98,45 +95,12 @@ public class MainActivity extends Activity {
 
     }
 
-    /**
-     * Exchanges the code, for the {@link TokenResponse}.
-     *
-     * @param intent represents the {@link Intent} from the Custom Tabs or the System Browser.
-     */
-    private void handleAuthorizationResponse(@NonNull Intent intent) {
-
-        // code from the step 'Handle the Authorization Response' goes here.
-        AuthorizationResponse response = AuthorizationResponse.fromIntent(intent);
-        AuthorizationException error = AuthorizationException.fromIntent(intent);
-        final AuthState authState = new AuthState(response, error);
-
-        if (response != null) {
-            Log.i(LOG_TAG, String.format("Handled Authorization Response %s ", authState.jsonSerializeString()));
-            AuthorizationService service = new AuthorizationService(this);
-            service.performTokenRequest(response.createTokenExchangeRequest(), new AuthorizationService.TokenResponseCallback() {
-                @Override
-                public void onTokenRequestCompleted(@Nullable TokenResponse tokenResponse, @Nullable AuthorizationException exception) {
-                    if (exception != null) {
-                        Log.w(LOG_TAG, "Token Exchange failed", exception);
-                    } else {
-                        if (tokenResponse != null) {
-                            authState.update(tokenResponse, exception);
-                            loginController.setAuthState(authState);
-                            enablePostAuthorizationFlows();
-                            Log.i(LOG_TAG, String.format("Token Response [ Access Token: %s, ID Token: %s ]", tokenResponse.accessToken, tokenResponse.idToken));
-                        }
-                    }
-                }
-            });
-        }
-    }
-
     private void enablePostAuthorizationFlows() {
-        mAuthState = loginController.getAuthState();
+        AuthState mAuthState = loginController.getAuthState();
         if (mAuthState != null && mAuthState.isAuthorized()) {
             if (mMakeApiCall.getVisibility() == View.GONE) {
                 mMakeApiCall.setVisibility(View.VISIBLE);
-                mMakeApiCall.setOnClickListener(new MainActivity.MakeApiCallListener(this, mAuthState, new AuthorizationService(this)));
+                mMakeApiCall.setOnClickListener(new MainActivity.MakeApiCallListener(this, loginController.getAuthState(), new AuthorizationService(this)));
             }
             if (mSignOut.getVisibility() == View.GONE) {
                 mSignOut.setVisibility(View.VISIBLE);
