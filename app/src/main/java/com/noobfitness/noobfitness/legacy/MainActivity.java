@@ -13,22 +13,18 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.noobfitness.noobfitness.R;
-import com.noobfitness.noobfitness.auth.LoginController;
-import com.noobfitness.noobfitness.dagger.DaggerAppComponent;
+import com.noobfitness.noobfitness.auth.AuthController;
 import com.noobfitness.noobfitness.dagger.InjectedApplication;
 import com.squareup.picasso.Picasso;
 
 import net.openid.appauth.AuthState;
 import net.openid.appauth.AuthorizationException;
-import net.openid.appauth.AuthorizationResponse;
 import net.openid.appauth.AuthorizationService;
-import net.openid.appauth.TokenResponse;
 
 import org.json.JSONObject;
 
@@ -45,7 +41,7 @@ public class MainActivity extends Activity {
     private static final String LOG_TAG = "MainActivity";
 
     @Inject
-    LoginController loginController;
+    AuthController authController;
 
     Button mMakeApiCall;
     Button mSignOut;
@@ -93,11 +89,11 @@ public class MainActivity extends Activity {
     }
 
     private void enablePostAuthorizationFlows() {
-        AuthState mAuthState = loginController.getAuthState();
+        AuthState mAuthState = authController.getAuthState();
         if (mAuthState != null && mAuthState.isAuthorized()) {
             if (mMakeApiCall.getVisibility() == View.GONE) {
                 mMakeApiCall.setVisibility(View.VISIBLE);
-                mMakeApiCall.setOnClickListener(new MainActivity.MakeApiCallListener(this, loginController.getAuthState(), new AuthorizationService(this)));
+                mMakeApiCall.setOnClickListener(new MainActivity.MakeApiCallListener(this, authController.getAuthState(), new AuthorizationService(this)));
             }
             if (mSignOut.getVisibility() == View.GONE) {
                 mSignOut.setVisibility(View.VISIBLE);
@@ -119,7 +115,7 @@ public class MainActivity extends Activity {
 
         @Override
         public void onClick(View view) {
-            mMainActivity.loginController.logout();
+            mMainActivity.authController.logout();
         }
     }
 

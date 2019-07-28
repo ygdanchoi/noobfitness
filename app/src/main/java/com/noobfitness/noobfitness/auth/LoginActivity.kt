@@ -3,7 +3,6 @@ package com.noobfitness.noobfitness.auth
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 
 import com.google.android.gms.common.SignInButton
 import com.noobfitness.noobfitness.dagger.InjectedApplication
@@ -16,20 +15,25 @@ import javax.inject.Inject
 class LoginActivity : Activity() {
 
     @Inject
-    lateinit var loginController: LoginController
+    lateinit var authController: AuthController
+
+    lateinit var button: SignInButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (application as InjectedApplication).appComponent.inject(this)
 
-        if (loginController.getAuthState()?.isAuthorized == true) {
-            login()
-        }
-
         setContentView(R.layout.activity_login)
 
-        val button = findViewById<SignInButton>(R.id.sign_in_button)
-        button.setOnClickListener { loginController.login(this) }
+        button = findViewById<SignInButton>(R.id.sign_in_button)
+        button.setOnClickListener {
+            val intent = authController.getAuthorizationRequestIntent()
+            startActivityForResult(intent, 100)
+        }
+
+        if (authController.getAuthState()?.isAuthorized == true) {
+            login()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -49,7 +53,7 @@ class LoginActivity : Activity() {
             service.performTokenRequest(response.createTokenExchangeRequest()) { tokenResponse, exception ->
                 if (tokenResponse != null) {
                     authState.update(tokenResponse, exception)
-                    loginController.setAuthState(authState)
+                    authController.setAuthState(authState)
 
                     login()
                 }
@@ -58,7 +62,13 @@ class LoginActivity : Activity() {
     }
 
     private fun login() {
-        val intent = Intent(this, MainActivity::class.java)
+        button.isEnabled = false
+
+        val intent = Intent(this, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        }
+
         startActivity(intent)
     }
 }

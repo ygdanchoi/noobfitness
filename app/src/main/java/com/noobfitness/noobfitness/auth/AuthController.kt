@@ -1,43 +1,40 @@
 package com.noobfitness.noobfitness.auth
 
-import android.app.Activity
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
 import android.net.Uri
-import android.text.TextUtils
 import com.noobfitness.noobfitness.R
-import com.noobfitness.noobfitness.legacy.MainActivity
 import net.openid.appauth.AuthState
 import net.openid.appauth.AuthorizationRequest
 import net.openid.appauth.AuthorizationService
 import net.openid.appauth.AuthorizationServiceConfiguration
-import org.json.JSONException
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class LoginController @Inject constructor(private val context: Context) {
+class AuthController @Inject constructor(private val context: Context) {
 
     private val clientId = context.getString(R.string.google_client_id)
     private val authorizationService = AuthorizationService(context)
 
     private var authState: AuthState? = null
 
-    fun login(activity: Activity) {
+    fun getAuthorizationRequestIntent(): Intent {
         val request = AuthorizationRequest.Builder(CONFIG, clientId, CODE, REDIRECT_URI)
                 .setScopes(SCOPES)
                 .build()
 
-        val intent = authorizationService.getAuthorizationRequestIntent(request)
-        activity.startActivityForResult(intent, 100)
+        return authorizationService.getAuthorizationRequestIntent(request)
     }
 
     fun logout() {
         setAuthState(null)
 
-        val intent = Intent(context, LoginActivity::class.java)
+        val intent = Intent(context, LoginActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        }
+
         context.startActivity(intent)
     }
 
