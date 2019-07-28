@@ -1,22 +1,23 @@
 package com.noobfitness.noobfitness.auth
 
 import android.content.Context
-import net.openid.appauth.AuthState
+import com.google.gson.Gson
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AuthStateManager @Inject constructor(private val context: Context) {
+class UserManager @Inject constructor(private val context: Context) {
     // TODO: thread safety
-    private var authState: AuthState? = null
+    private var loggedInUser: User? = null
+    private val gson = Gson()
 
-    fun set(authState: AuthState?) {
-        this.authState = authState
+    fun set(user: User?) {
+        this.loggedInUser = loggedInUser
 
-        if (authState != null) {
+        if (user != null) {
             context.getSharedPreferences(PREFERENCE, Context.MODE_PRIVATE)
                     .edit()
-                    .putString(KEY, authState.jsonSerializeString())
+                    .putString(KEY, gson.toJson(user))
                     .apply()
         } else {
             context.getSharedPreferences(PREFERENCE, Context.MODE_PRIVATE)
@@ -26,16 +27,16 @@ class AuthStateManager @Inject constructor(private val context: Context) {
         }
     }
 
-    fun get(): AuthState? {
-        if (authState != null) {
-            return authState
+    fun get(): User? {
+        if (loggedInUser != null) {
+            return loggedInUser
         }
 
         val jsonString = context.getSharedPreferences(PREFERENCE, Context.MODE_PRIVATE)
                 .getString(KEY, null)
 
         return if (jsonString?.isNotEmpty() == true) {
-            AuthState.jsonDeserialize(jsonString)
+            gson.fromJson(jsonString, User::class.java)
         } else {
             null
         }

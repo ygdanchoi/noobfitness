@@ -14,8 +14,6 @@ class AuthService @Inject constructor(private val context: Context) {
     private val clientId = context.getString(R.string.google_client_id)
     private val authorizationService = AuthorizationService(context)
 
-    var loggedInUser: User? = null
-
     fun getAuthorizationRequestIntent(): Intent {
         val request = AuthorizationRequest.Builder(CONFIG, clientId, CODE, REDIRECT_URI)
                 .setScopes(SCOPES)
@@ -36,8 +34,6 @@ class AuthService @Inject constructor(private val context: Context) {
     }
 
     fun logout() {
-        loggedInUser = null
-
         val intent = Intent(context, LoginActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)

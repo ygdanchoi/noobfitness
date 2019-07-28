@@ -8,14 +8,11 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
 import android.view.View
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 
 import com.noobfitness.noobfitness.R
 import com.noobfitness.noobfitness.auth.AuthService
-import com.noobfitness.noobfitness.auth.AuthStateManager
+import com.noobfitness.noobfitness.auth.UserManager
 import com.noobfitness.noobfitness.dagger.InjectedApplication
 import com.squareup.picasso.Picasso
 
@@ -32,7 +29,7 @@ class MainActivity : Activity() {
     @Inject
     lateinit var authService: AuthService
     @Inject
-    lateinit var authStateManager: AuthStateManager
+    lateinit var userManager: UserManager
 
     private lateinit var makeApiCallButton: Button
     private lateinit var signOutButton: Button
@@ -58,7 +55,7 @@ class MainActivity : Activity() {
         val mainLinearLayout = findViewById<LinearLayout>(R.id.activity_main)
 
         fourDayDefault = Button(this)
-        fourDayDefault.text = authService.loggedInUser?.routines
+        fourDayDefault.text = userManager.get()?.routines
         fourDayDefault.gravity = Gravity.LEFT
         fourDayDefault.setPadding(96, 96, 96, 96)
         fourDayDefault.typeface = Typeface.create("sans-serif-light", Typeface.NORMAL)
@@ -72,8 +69,7 @@ class MainActivity : Activity() {
     }
 
     private fun enablePostAuthorizationFlows() {
-        val mAuthState = authStateManager.get()
-        if (mAuthState != null && mAuthState.isAuthorized) {
+        if (userManager.get() != null) {
             if (makeApiCallButton.visibility == View.GONE) {
                 makeApiCallButton.visibility = View.VISIBLE
                 makeApiCallButton.setOnClickListener { onMakeApiCallClicked() }
@@ -83,9 +79,9 @@ class MainActivity : Activity() {
                 signOutButton.setOnClickListener { onSignOutClicked() }
             }
 
-            usernameTextView.text = authService.loggedInUser?.username
+            usernameTextView.text = userManager.get()?.username
             Picasso.with(this)
-                    .load(authService.loggedInUser?.avatar)
+                    .load(userManager.get()?.avatar)
                     .placeholder(R.drawable.ring_accent)
                     .into(avatarImageView)
 
@@ -96,50 +92,33 @@ class MainActivity : Activity() {
     }
 
     private fun onSignOutClicked() {
-        authStateManager.set(null)
+        userManager.set(null)
         authService.logout()
     }
 
     private fun onMakeApiCallClicked() {
-        object : AsyncTask<String, Void, JSONObject>() {
-            override fun doInBackground(vararg tokens: String): JSONObject? {
+        object : AsyncTask<String, Void, String>() {
+            override fun doInBackground(vararg tokens: String): String? {
                 val client = OkHttpClient()
-                val requestBody = FormBody.Builder()
-                        .add("access_token", tokens[0])
-                        .build()
                 val request = Request.Builder()
-                        .post(requestBody)
-                        .url("http://10.0.2.2:5000/api/auth/google")
+                        .get()
+                        .header("x-auth-token", tokens[0])
+                        .url("http://10.0.2.2:5000/api/routines")
                         .build()
                 try {
                     val response = client.newCall(request).execute()
-                    val header = response.header("x-auth-token")
                     val jsonBody = response.body()!!.string()
-                    Log.i(LOG_TAG, String.format("User Info Response %s", jsonBody))
-                    return JSONObject(jsonBody)
+                    return jsonBody
                 } catch (exception: Exception) {
                     Log.w(LOG_TAG, exception)
-                }
-
-                return null
-            }
-
-            override fun onPostExecute(userInfo: JSONObject?) {
-                if (userInfo != null) {
-                    val fullName = userInfo.optString("username", null)
-                    val imageUrl = userInfo.optString("avatar", null)
-                    val routines = userInfo.optString("routines", null)
-                    if (imageUrl.isNotEmpty()) {
-                        Picasso.with(this@MainActivity)
-                                .load(imageUrl)
-                                .placeholder(R.drawable.ring_accent)
-                                .into(avatarImageView)
-                    }
-                    usernameTextView.text = fullName
-                    fourDayDefault.text = routines
+                    return null
                 }
             }
-        }.execute(authStateManager.get()?.accessToken)
+
+            override fun onPostExecute(jsonBody: String?) {
+                Toast.makeText(this@MainActivity, jsonBody, Toast.LENGTH_LONG).show();
+            }
+        }.execute(userManager.get()?.authToken)
     }
 
     companion object {

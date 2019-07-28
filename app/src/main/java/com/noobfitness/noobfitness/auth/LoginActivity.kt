@@ -4,13 +4,11 @@ import android.app.Activity
 import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
-import android.util.Log
 
 import com.google.android.gms.common.SignInButton
 import com.noobfitness.noobfitness.dagger.InjectedApplication
 import com.noobfitness.noobfitness.R
 import com.noobfitness.noobfitness.legacy.MainActivity
-import com.squareup.picasso.Picasso
 import net.openid.appauth.*
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
@@ -24,9 +22,10 @@ class LoginActivity : Activity() {
     @Inject
     lateinit var authService: AuthService
     @Inject
-    lateinit var authStateManager: AuthStateManager
+    lateinit var userManager: UserManager
 
-    lateinit var button: SignInButton
+    private lateinit var button: SignInButton
+    private var authState: AuthState? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +39,7 @@ class LoginActivity : Activity() {
             startActivityForResult(intent, RC_AUTH)
         }
 
-        if (authStateManager.get()?.isAuthorized == true) {
+        if (userManager.get() != null) {
             login()
         }
     }
@@ -58,15 +57,14 @@ class LoginActivity : Activity() {
 
     private fun onAuthorizationResponse(response: AuthorizationResponse?, error: AuthorizationException?) {
         if (response != null) {
-            authStateManager.set(AuthState(response, error))
+            authState = AuthState(response, error)
             authService.performTokenRequest(response.createTokenExchangeRequest(), ::onGAuthTokenResponse)
         }
     }
 
     private fun onGAuthTokenResponse(response: TokenResponse?, error: AuthorizationException?) {
         if (response != null) {
-            val authState = authStateManager.get()?.apply { update(response, error) }
-            authStateManager.set(authState)
+            authState?.apply { update(response, error) }
 
             object : AsyncTask<String, Void, User>() {
                 override fun doInBackground(vararg tokens: String): User? {
@@ -101,7 +99,7 @@ class LoginActivity : Activity() {
 
                 override fun onPostExecute(user: User?) {
                     if (user != null) {
-                        authService.loggedInUser = user
+                        userManager.set(user)
                         login()
                     }
                 }
