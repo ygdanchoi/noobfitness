@@ -10,11 +10,10 @@ import android.view.View;
 import android.widget.Button;
 
 import com.google.android.gms.common.SignInButton;
-import com.noobfitness.noobfitness.MainApplication;
+import com.noobfitness.noobfitness.dagger.InjectedApplication;
 import com.noobfitness.noobfitness.R;
 import com.noobfitness.noobfitness.legacy.MainActivity;
 
-import net.openid.appauth.AuthState;
 import net.openid.appauth.AuthorizationRequest;
 import net.openid.appauth.AuthorizationService;
 import net.openid.appauth.AuthorizationServiceConfiguration;
@@ -23,20 +22,16 @@ public class LoginActivity extends Activity {
 
     private static final String LOG_TAG = "LoginActivity";
 
-    MainApplication mMainApplication;
-
-    // views
     SignInButton mAuthorize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((InjectedApplication) getApplication()).getAppComponent().inject(this);
         setContentView(R.layout.activity_login);
-        mMainApplication = (MainApplication) getApplication();
 
         mAuthorize = findViewById(R.id.authorize);
 
-        // wire click listeners
         mAuthorize.setOnClickListener(new AuthorizeListener());
     }
 
