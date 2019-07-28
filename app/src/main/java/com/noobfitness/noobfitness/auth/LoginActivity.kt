@@ -15,7 +15,9 @@ import javax.inject.Inject
 class LoginActivity : Activity() {
 
     @Inject
-    lateinit var authController: AuthController
+    lateinit var authService: AuthService
+    @Inject
+    lateinit var authStateManager: AuthStateManager
 
     lateinit var button: SignInButton
 
@@ -27,11 +29,11 @@ class LoginActivity : Activity() {
 
         button = findViewById(R.id.sign_in_button)
         button.setOnClickListener {
-            val intent = authController.getAuthorizationRequestIntent()
+            val intent = authService.getAuthorizationRequestIntent()
             startActivityForResult(intent, RC_AUTH)
         }
 
-        if (authController.getAuthState()?.isAuthorized == true) {
+        if (authStateManager.get()?.isAuthorized == true) {
             login()
         }
     }
@@ -49,15 +51,15 @@ class LoginActivity : Activity() {
 
     private fun onAuthorizationResponse(response: AuthorizationResponse?, error: AuthorizationException?) {
         if (response != null) {
-            authController.setAuthState(AuthState(response, error))
-            authController.performTokenRequest(response.createTokenExchangeRequest(), ::onTokenRequestCompleted)
+            authStateManager.set(AuthState(response, error))
+            authService.performTokenRequest(response.createTokenExchangeRequest(), ::onTokenRequestCompleted)
         }
     }
 
     private fun onTokenRequestCompleted(response: TokenResponse?, error: AuthorizationException?) {
         if (response != null) {
-            val authState = authController.getAuthState()?.apply { update(response, error) }
-            authController.setAuthState(authState)
+            val authState = authStateManager.get()?.apply { update(response, error) }
+            authStateManager.set(authState)
 
             login()
         }

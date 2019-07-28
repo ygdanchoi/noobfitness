@@ -1,7 +1,8 @@
 package com.noobfitness.noobfitness.dagger
 
 import android.app.Application
-import com.noobfitness.noobfitness.auth.AuthController
+import com.noobfitness.noobfitness.auth.AuthService
+import com.noobfitness.noobfitness.auth.AuthStateManager
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -10,7 +11,13 @@ import javax.inject.Singleton
 class ServicesModule {
     @Provides
     @Singleton
-    fun provideAuthService(application: Application): AuthController {
-        return AuthController(application.applicationContext)
+    fun provideAuthController(application: Application): AuthService {
+        return AuthService(application.applicationContext)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthStateManager(application: Application): AuthStateManager {
+        return AuthStateManager(application.applicationContext)
     }
 }

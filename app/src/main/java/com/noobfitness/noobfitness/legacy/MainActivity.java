@@ -18,7 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.noobfitness.noobfitness.R;
-import com.noobfitness.noobfitness.auth.AuthController;
+import com.noobfitness.noobfitness.auth.AuthService;
+import com.noobfitness.noobfitness.auth.AuthStateManager;
 import com.noobfitness.noobfitness.dagger.InjectedApplication;
 import com.squareup.picasso.Picasso;
 
@@ -41,7 +42,9 @@ public class MainActivity extends Activity {
     private static final String LOG_TAG = "MainActivity";
 
     @Inject
-    AuthController authController;
+    AuthService authService;
+    @Inject
+    AuthStateManager authStateManager;
 
     Button mMakeApiCall;
     Button mSignOut;
@@ -89,11 +92,11 @@ public class MainActivity extends Activity {
     }
 
     private void enablePostAuthorizationFlows() {
-        AuthState mAuthState = authController.getAuthState();
+        AuthState mAuthState = authStateManager.get();
         if (mAuthState != null && mAuthState.isAuthorized()) {
             if (mMakeApiCall.getVisibility() == View.GONE) {
                 mMakeApiCall.setVisibility(View.VISIBLE);
-                mMakeApiCall.setOnClickListener(new MainActivity.MakeApiCallListener(this, authController.getAuthState(), new AuthorizationService(this)));
+                mMakeApiCall.setOnClickListener(new MainActivity.MakeApiCallListener(this, authStateManager.get(), new AuthorizationService(this)));
             }
             if (mSignOut.getVisibility() == View.GONE) {
                 mSignOut.setVisibility(View.VISIBLE);
@@ -115,7 +118,8 @@ public class MainActivity extends Activity {
 
         @Override
         public void onClick(View view) {
-            mMainActivity.authController.logout();
+            mMainActivity.authStateManager.set(null);
+            mMainActivity.authService.logout();
         }
     }
 
