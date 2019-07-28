@@ -12,7 +12,9 @@ import javax.inject.Singleton
 class AuthService @Inject constructor(private val context: Context) {
 
     private val clientId = context.getString(R.string.google_client_id)
-    public val authorizationService = AuthorizationService(context)
+    private val authorizationService = AuthorizationService(context)
+
+    var loggedInUser: User? = null
 
     fun getAuthorizationRequestIntent(): Intent {
         val request = AuthorizationRequest.Builder(CONFIG, clientId, CODE, REDIRECT_URI)
@@ -24,16 +26,18 @@ class AuthService @Inject constructor(private val context: Context) {
 
     fun performTokenRequest(
             request: TokenRequest,
-            onTokenRequestCompleted: (TokenResponse?, AuthorizationException?) -> Unit
+            onGAuthTokenResponse: (TokenResponse?, AuthorizationException?) -> Unit
     ) {
         val callback = AuthorizationService.TokenResponseCallback {
-            response, error -> onTokenRequestCompleted(response, error)
+            response, error -> onGAuthTokenResponse(response, error)
         }
 
         authorizationService.performTokenRequest(request, callback)
     }
 
     fun logout() {
+        loggedInUser = null
+
         val intent = Intent(context, LoginActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)

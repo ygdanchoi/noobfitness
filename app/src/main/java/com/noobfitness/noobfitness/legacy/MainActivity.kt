@@ -5,7 +5,6 @@ import android.content.Intent
 import android.graphics.Typeface
 import android.os.AsyncTask
 import android.os.Bundle
-import android.text.TextUtils
 import android.util.Log
 import android.view.Gravity
 import android.view.View
@@ -20,9 +19,6 @@ import com.noobfitness.noobfitness.auth.AuthStateManager
 import com.noobfitness.noobfitness.dagger.InjectedApplication
 import com.squareup.picasso.Picasso
 
-import net.openid.appauth.AuthState
-import net.openid.appauth.AuthorizationException
-
 import org.json.JSONObject
 
 import javax.inject.Inject
@@ -30,8 +26,6 @@ import javax.inject.Inject
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody
-import okhttp3.Response
 
 class MainActivity : Activity() {
 
@@ -42,8 +36,8 @@ class MainActivity : Activity() {
 
     private lateinit var makeApiCallButton: Button
     private lateinit var signOutButton: Button
-    private lateinit var mFullName: TextView
-    private lateinit var mProfileView: ImageView
+    private lateinit var usernameTextView: TextView
+    private lateinit var avatarImageView: ImageView
 
     private lateinit var fourDayDefault: Button
 
@@ -56,15 +50,15 @@ class MainActivity : Activity() {
 
         makeApiCallButton = findViewById(R.id.makeApiCall)
         signOutButton = findViewById(R.id.signOut)
-        mFullName = findViewById(R.id.fullName)
-        mProfileView = findViewById(R.id.profileImage)
+        usernameTextView = findViewById(R.id.fullName)
+        avatarImageView = findViewById(R.id.profileImage)
 
         enablePostAuthorizationFlows()
 
         val mainLinearLayout = findViewById<LinearLayout>(R.id.activity_main)
 
         fourDayDefault = Button(this)
-        fourDayDefault.text = "hello world"
+        fourDayDefault.text = authService.loggedInUser?.routines
         fourDayDefault.gravity = Gravity.LEFT
         fourDayDefault.setPadding(96, 96, 96, 96)
         fourDayDefault.typeface = Typeface.create("sans-serif-light", Typeface.NORMAL)
@@ -88,6 +82,13 @@ class MainActivity : Activity() {
                 signOutButton.visibility = View.VISIBLE
                 signOutButton.setOnClickListener { onSignOutClicked() }
             }
+
+            usernameTextView.text = authService.loggedInUser?.username
+            Picasso.with(this)
+                    .load(authService.loggedInUser?.avatar)
+                    .placeholder(R.drawable.ring_accent)
+                    .into(avatarImageView)
+
         } else {
             makeApiCallButton.visibility = View.GONE
             signOutButton.visibility = View.GONE
@@ -132,9 +133,9 @@ class MainActivity : Activity() {
                         Picasso.with(this@MainActivity)
                                 .load(imageUrl)
                                 .placeholder(R.drawable.ring_accent)
-                                .into(mProfileView)
+                                .into(avatarImageView)
                     }
-                    mFullName.text = fullName
+                    usernameTextView.text = fullName
                     fourDayDefault.text = routines
                 }
             }

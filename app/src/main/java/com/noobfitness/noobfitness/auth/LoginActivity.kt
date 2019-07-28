@@ -2,13 +2,20 @@ package com.noobfitness.noobfitness.auth
 
 import android.app.Activity
 import android.content.Intent
+import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
 
 import com.google.android.gms.common.SignInButton
 import com.noobfitness.noobfitness.dagger.InjectedApplication
 import com.noobfitness.noobfitness.R
 import com.noobfitness.noobfitness.legacy.MainActivity
+import com.squareup.picasso.Picasso
 import net.openid.appauth.*
+import okhttp3.FormBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONObject
 
 import javax.inject.Inject
 
@@ -52,16 +59,53 @@ class LoginActivity : Activity() {
     private fun onAuthorizationResponse(response: AuthorizationResponse?, error: AuthorizationException?) {
         if (response != null) {
             authStateManager.set(AuthState(response, error))
-            authService.performTokenRequest(response.createTokenExchangeRequest(), ::onTokenRequestCompleted)
+            authService.performTokenRequest(response.createTokenExchangeRequest(), ::onGAuthTokenResponse)
         }
     }
 
-    private fun onTokenRequestCompleted(response: TokenResponse?, error: AuthorizationException?) {
+    private fun onGAuthTokenResponse(response: TokenResponse?, error: AuthorizationException?) {
         if (response != null) {
             val authState = authStateManager.get()?.apply { update(response, error) }
             authStateManager.set(authState)
 
-            login()
+            object : AsyncTask<String, Void, User>() {
+                override fun doInBackground(vararg tokens: String): User? {
+                    val client = OkHttpClient()
+                    val requestBody = FormBody.Builder()
+                            .add("access_token", tokens[0])
+                            .build()
+                    val request = Request.Builder()
+                            .post(requestBody)
+                            .url("http://10.0.2.2:5000/api/auth/google")
+                            .build()
+                    val response = client.newCall(request).execute()
+                    val authToken = response.header("x-auth-token")!!
+                    val jsonBody = response.body()!!.string()
+                    val userJson = JSONObject(jsonBody)
+
+                    val id = userJson.optString("_id", null)
+                    val googleId = userJson.optString("googleId", null)
+                    val username = userJson.optString("username", null)
+                    val avatar = userJson.optString("avatar", null)
+                    val routines = userJson.optString("routines", null)
+
+                    return User(
+                            authToken = authToken,
+                            id = id,
+                            googleId = googleId,
+                            username = username,
+                            avatar = avatar,
+                            routines = routines
+                    )
+                }
+
+                override fun onPostExecute(user: User?) {
+                    if (user != null) {
+                        authService.loggedInUser = user
+                        login()
+                    }
+                }
+            }.execute(authState?.accessToken)
         }
     }
 
