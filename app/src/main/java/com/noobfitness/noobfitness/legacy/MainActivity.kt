@@ -103,7 +103,7 @@ class MainActivity : Activity() {
                 val request = Request.Builder()
                         .get()
                         .header("x-auth-token", tokens[0])
-                        .url("http://10.0.2.2:5000/api/routines")
+                        .url("http://10.0.2.2:5000/api/workouts")
                         .build()
                 try {
                     val response = client.newCall(request).execute()

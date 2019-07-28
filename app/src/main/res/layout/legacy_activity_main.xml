@@ -12,7 +12,7 @@
         android:id="@+id/makeApiCall"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Fetch Routines"
+        android:text="Fetch Workouts"
         android:visibility="gone"/>
 
     <Button
