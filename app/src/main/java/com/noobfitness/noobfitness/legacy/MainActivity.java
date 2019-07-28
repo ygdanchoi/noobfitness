@@ -14,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.noobfitness.noobfitness.R;
@@ -25,7 +24,6 @@ import com.squareup.picasso.Picasso;
 
 import net.openid.appauth.AuthState;
 import net.openid.appauth.AuthorizationException;
-import net.openid.appauth.AuthorizationService;
 
 import org.json.JSONObject;
 
@@ -46,10 +44,8 @@ public class MainActivity extends Activity {
     @Inject
     AuthStateManager authStateManager;
 
-    Button mMakeApiCall;
-    Button mSignOut;
-    TextView mGivenName;
-    TextView mFamilyName;
+    Button makeApiCallButton;
+    Button signOutButton;
     TextView mFullName;
     ImageView mProfileView;
 
@@ -63,10 +59,8 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.legacy_activity_main);
 
-        mMakeApiCall = findViewById(R.id.makeApiCall);
-        mSignOut = findViewById(R.id.signOut);
-        mGivenName = findViewById(R.id.givenName);
-        mFamilyName = findViewById(R.id.familyName);
+        makeApiCallButton = findViewById(R.id.makeApiCall);
+        signOutButton = findViewById(R.id.signOut);
         mFullName = findViewById(R.id.fullName);
         mProfileView = findViewById(R.id.profileImage);
 
@@ -94,99 +88,83 @@ public class MainActivity extends Activity {
     private void enablePostAuthorizationFlows() {
         AuthState mAuthState = authStateManager.get();
         if (mAuthState != null && mAuthState.isAuthorized()) {
-            if (mMakeApiCall.getVisibility() == View.GONE) {
-                mMakeApiCall.setVisibility(View.VISIBLE);
-                mMakeApiCall.setOnClickListener(new MainActivity.MakeApiCallListener(this, authStateManager.get(), new AuthorizationService(this)));
+            if (makeApiCallButton.getVisibility() == View.GONE) {
+                makeApiCallButton.setVisibility(View.VISIBLE);
+                makeApiCallButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onMakeApiCallClicked();
+                    }
+                });
             }
-            if (mSignOut.getVisibility() == View.GONE) {
-                mSignOut.setVisibility(View.VISIBLE);
-                mSignOut.setOnClickListener(new MainActivity.SignOutListener(this));
+            if (signOutButton.getVisibility() == View.GONE) {
+                signOutButton.setVisibility(View.VISIBLE);
+                signOutButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onSignOutClicked();
+                    }
+                });
             }
         } else {
-            mMakeApiCall.setVisibility(View.GONE);
-            mSignOut.setVisibility(View.GONE);
+            makeApiCallButton.setVisibility(View.GONE);
+            signOutButton.setVisibility(View.GONE);
         }
     }
 
-    public static class SignOutListener implements Button.OnClickListener {
-
-        private final MainActivity mMainActivity;
-
-        public SignOutListener(@NonNull MainActivity mainActivity) {
-            mMainActivity = mainActivity;
-        }
-
-        @Override
-        public void onClick(View view) {
-            mMainActivity.authStateManager.set(null);
-            mMainActivity.authService.logout();
-        }
+    private void onSignOutClicked() {
+        authStateManager.set(null);
+        authService.logout();
     }
 
-    public static class MakeApiCallListener implements Button.OnClickListener {
-
-        private final MainActivity mMainActivity;
-        private AuthState mAuthState;
-        private AuthorizationService mAuthorizationService;
-
-        public MakeApiCallListener(@NonNull MainActivity mainActivity, @NonNull AuthState authState, @NonNull AuthorizationService authorizationService) {
-            mMainActivity = mainActivity;
-            mAuthState = authState;
-            mAuthorizationService = authorizationService;
-        }
-
-        @Override
-        public void onClick(View view) {
-
-            // code from the section 'Making API Calls' goes here
-            mAuthState.performActionWithFreshTokens(mAuthorizationService, new AuthState.AuthStateAction() {
-                @Override
-                public void execute(@Nullable String accessToken, @Nullable String idToken, @Nullable AuthorizationException exception) {
-                    new AsyncTask<String, Void, JSONObject>() {
-                        @Override
-                        protected JSONObject doInBackground(String... tokens) {
-                            OkHttpClient client = new OkHttpClient();
-                            RequestBody requestBody = new FormBody.Builder()
-                                    .add("access_token", tokens[0])
-                                    .build();
-                            Request request = new Request.Builder()
-                                    .post(requestBody)
-                                    .url("http://10.0.2.2:5000/api/auth/google")
-                                    .build();
-                            try {
-                                Response response = client.newCall(request).execute();
-                                String header = response.header("x-auth-token");
-                                String jsonBody = response.body().string();
-                                Log.i(LOG_TAG, String.format("User Info Response %s", jsonBody));
-                                return new JSONObject(jsonBody);
-                            } catch (Exception exception) {
-                                Log.w(LOG_TAG, exception);
-                            }
-                            return null;
+    private void onMakeApiCallClicked() {
+        authStateManager.get().performActionWithFreshTokens(authService.getAuthorizationService(), new AuthState.AuthStateAction() {
+            @Override
+            public void execute(@Nullable String accessToken, @Nullable String idToken, @Nullable AuthorizationException exception) {
+                new AsyncTask<String, Void, JSONObject>() {
+                    @Override
+                    protected JSONObject doInBackground(String... tokens) {
+                        OkHttpClient client = new OkHttpClient();
+                        RequestBody requestBody = new FormBody.Builder()
+                                .add("access_token", tokens[0])
+                                .build();
+                        Request request = new Request.Builder()
+                                .post(requestBody)
+                                .url("http://10.0.2.2:5000/api/auth/google")
+                                .build();
+                        try {
+                            Response response = client.newCall(request).execute();
+                            String header = response.header("x-auth-token");
+                            String jsonBody = response.body().string();
+                            Log.i(LOG_TAG, String.format("User Info Response %s", jsonBody));
+                            return new JSONObject(jsonBody);
+                        } catch (Exception exception) {
+                            Log.w(LOG_TAG, exception);
                         }
+                        return null;
+                    }
 
-                        @Override
-                        protected void onPostExecute(JSONObject userInfo) {
-                            if (userInfo != null) {
-                                String fullName = userInfo.optString("username", null);
-                                String imageUrl = userInfo.optString("avatar", null);
-                                String routines = userInfo.optString("routines", null);
-                                if (!TextUtils.isEmpty(imageUrl)) {
-                                    Picasso.with(mMainActivity)
-                                            .load(imageUrl)
-                                            .placeholder(R.drawable.ring_accent)
-                                            .into(mMainActivity.mProfileView);
-                                }
-                                if (!TextUtils.isEmpty(fullName)) {
-                                    mMainActivity.mFullName.setText(fullName);
-                                }
-
-                                mMainActivity.fourDayDefault.setText(routines);
+                    @Override
+                    protected void onPostExecute(JSONObject userInfo) {
+                        if (userInfo != null) {
+                            String fullName = userInfo.optString("username", null);
+                            String imageUrl = userInfo.optString("avatar", null);
+                            String routines = userInfo.optString("routines", null);
+                            if (!TextUtils.isEmpty(imageUrl)) {
+                                Picasso.with(MainActivity.this)
+                                        .load(imageUrl)
+                                        .placeholder(R.drawable.ring_accent)
+                                        .into(mProfileView);
                             }
+                            if (!TextUtils.isEmpty(fullName)) {
+                                mFullName.setText(fullName);
+                            }
+
+                            fourDayDefault.setText(routines);
                         }
-                    }.execute(accessToken);
-                }
-            });
-        }
+                    }
+                }.execute(accessToken);
+            }
+        });
     }
 }

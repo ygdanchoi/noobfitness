@@ -7,6 +7,7 @@ import javax.inject.Singleton
 
 @Singleton
 class AuthStateManager @Inject constructor(private val context: Context) {
+    // TODO: thread safety
     private var authState: AuthState? = null
 
     fun set(authState: AuthState?) {

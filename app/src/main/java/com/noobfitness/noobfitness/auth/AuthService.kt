@@ -12,7 +12,7 @@ import javax.inject.Singleton
 class AuthService @Inject constructor(private val context: Context) {
 
     private val clientId = context.getString(R.string.google_client_id)
-    private val authorizationService = AuthorizationService(context)
+    public val authorizationService = AuthorizationService(context)
 
     fun getAuthorizationRequestIntent(): Intent {
         val request = AuthorizationRequest.Builder(CONFIG, clientId, CODE, REDIRECT_URI)
