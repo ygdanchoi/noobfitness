@@ -90,11 +90,6 @@ public class MainActivity extends Activity {
             }
         });
         mainLinearLayout.addView(fourDayDefault);
-
-        TextView imageCredit = new TextView(this);
-        imageCredit.setText("Image source: Everkinetic.com (CC BY-SA 3.0)");
-        mainLinearLayout.addView(imageCredit);
-
     }
 
     private void enablePostAuthorizationFlows() {
