@@ -100,47 +100,45 @@ class MainActivity : Activity() {
     }
 
     private fun onMakeApiCallClicked() {
-        authStateManager.get()!!.performActionWithFreshTokens(authService.authorizationService) { accessToken, idToken, exception ->
-            object : AsyncTask<String, Void, JSONObject>() {
-                override fun doInBackground(vararg tokens: String): JSONObject? {
-                    val client = OkHttpClient()
-                    val requestBody = FormBody.Builder()
-                            .add("access_token", tokens[0])
-                            .build()
-                    val request = Request.Builder()
-                            .post(requestBody)
-                            .url("http://10.0.2.2:5000/api/auth/google")
-                            .build()
-                    try {
-                        val response = client.newCall(request).execute()
-                        val header = response.header("x-auth-token")
-                        val jsonBody = response.body()!!.string()
-                        Log.i(LOG_TAG, String.format("User Info Response %s", jsonBody))
-                        return JSONObject(jsonBody)
-                    } catch (exception: Exception) {
-                        Log.w(LOG_TAG, exception)
-                    }
-
-                    return null
+        object : AsyncTask<String, Void, JSONObject>() {
+            override fun doInBackground(vararg tokens: String): JSONObject? {
+                val client = OkHttpClient()
+                val requestBody = FormBody.Builder()
+                        .add("access_token", tokens[0])
+                        .build()
+                val request = Request.Builder()
+                        .post(requestBody)
+                        .url("http://10.0.2.2:5000/api/auth/google")
+                        .build()
+                try {
+                    val response = client.newCall(request).execute()
+                    val header = response.header("x-auth-token")
+                    val jsonBody = response.body()!!.string()
+                    Log.i(LOG_TAG, String.format("User Info Response %s", jsonBody))
+                    return JSONObject(jsonBody)
+                } catch (exception: Exception) {
+                    Log.w(LOG_TAG, exception)
                 }
 
-                override fun onPostExecute(userInfo: JSONObject?) {
-                    if (userInfo != null) {
-                        val fullName = userInfo.optString("username", null)
-                        val imageUrl = userInfo.optString("avatar", null)
-                        val routines = userInfo.optString("routines", null)
-                        if (imageUrl.isNotEmpty()) {
-                            Picasso.with(this@MainActivity)
-                                    .load(imageUrl)
-                                    .placeholder(R.drawable.ring_accent)
-                                    .into(mProfileView)
-                        }
-                        mFullName.text = fullName
-                        fourDayDefault.text = routines
+                return null
+            }
+
+            override fun onPostExecute(userInfo: JSONObject?) {
+                if (userInfo != null) {
+                    val fullName = userInfo.optString("username", null)
+                    val imageUrl = userInfo.optString("avatar", null)
+                    val routines = userInfo.optString("routines", null)
+                    if (imageUrl.isNotEmpty()) {
+                        Picasso.with(this@MainActivity)
+                                .load(imageUrl)
+                                .placeholder(R.drawable.ring_accent)
+                                .into(mProfileView)
                     }
+                    mFullName.text = fullName
+                    fourDayDefault.text = routines
                 }
-            }.execute(accessToken)
-        }
+            }
+        }.execute(authStateManager.get()?.accessToken)
     }
 
     companion object {
