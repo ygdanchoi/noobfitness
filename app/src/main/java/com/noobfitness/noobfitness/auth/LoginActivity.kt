@@ -25,10 +25,10 @@ class LoginActivity : Activity() {
 
         setContentView(R.layout.activity_login)
 
-        button = findViewById<SignInButton>(R.id.sign_in_button)
+        button = findViewById(R.id.sign_in_button)
         button.setOnClickListener {
             val intent = authController.getAuthorizationRequestIntent()
-            startActivityForResult(intent, 100)
+            startActivityForResult(intent, RC_AUTH)
         }
 
         if (authController.getAuthState()?.isAuthorized == true) {
@@ -38,26 +38,28 @@ class LoginActivity : Activity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 100) {
-            handleAuthorizationResponse(data!!)
+
+        if (requestCode == RC_AUTH) {
+            val response = AuthorizationResponse.fromIntent(data!!)
+            val error = AuthorizationException.fromIntent(data!!)
+
+            onAuthorizationResponse(response, error)
         }
     }
 
-    private fun handleAuthorizationResponse(intent: Intent) {
-        val response = AuthorizationResponse.fromIntent(intent)
-        val error = AuthorizationException.fromIntent(intent)
-        val authState = AuthState(response, error)
-
+    private fun onAuthorizationResponse(response: AuthorizationResponse?, error: AuthorizationException?) {
         if (response != null) {
-            val service = AuthorizationService(this)
-            service.performTokenRequest(response.createTokenExchangeRequest()) { tokenResponse, exception ->
-                if (tokenResponse != null) {
-                    authState.update(tokenResponse, exception)
-                    authController.setAuthState(authState)
+            authController.setAuthState(AuthState(response, error))
+            authController.performTokenRequest(response.createTokenExchangeRequest(), ::onTokenRequestCompleted)
+        }
+    }
 
-                    login()
-                }
-            }
+    private fun onTokenRequestCompleted(response: TokenResponse?, error: AuthorizationException?) {
+        if (response != null) {
+            val authState = authController.getAuthState()?.apply { update(response, error) }
+            authController.setAuthState(authState)
+
+            login()
         }
     }
 
@@ -70,5 +72,9 @@ class LoginActivity : Activity() {
         }
 
         startActivity(intent)
+    }
+
+    companion object {
+        private const val RC_AUTH = 100
     }
 }

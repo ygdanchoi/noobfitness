@@ -4,10 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.noobfitness.noobfitness.R
-import net.openid.appauth.AuthState
-import net.openid.appauth.AuthorizationRequest
-import net.openid.appauth.AuthorizationService
-import net.openid.appauth.AuthorizationServiceConfiguration
+import net.openid.appauth.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,6 +22,17 @@ class AuthController @Inject constructor(private val context: Context) {
                 .build()
 
         return authorizationService.getAuthorizationRequestIntent(request)
+    }
+
+    fun performTokenRequest(
+            request: TokenRequest,
+            onTokenRequestCompleted: (TokenResponse?, AuthorizationException?) -> Unit
+    ) {
+        val callback = AuthorizationService.TokenResponseCallback {
+            response, error -> onTokenRequestCompleted(response, error)
+        }
+
+        authorizationService.performTokenRequest(request, callback)
     }
 
     fun logout() {
