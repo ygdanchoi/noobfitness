@@ -155,6 +155,7 @@ public class MainActivity extends Activity {
                                     .build();
                             try {
                                 Response response = client.newCall(request).execute();
+                                String header = response.header("x-auth-token");
                                 String jsonBody = response.body().string();
                                 Log.i(LOG_TAG, String.format("User Info Response %s", jsonBody));
                                 return new JSONObject(jsonBody);
