@@ -5,11 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import android.net.Uri
+import android.text.TextUtils
 import com.noobfitness.noobfitness.R
 import com.noobfitness.noobfitness.legacy.MainActivity
+import net.openid.appauth.AuthState
 import net.openid.appauth.AuthorizationRequest
 import net.openid.appauth.AuthorizationService
 import net.openid.appauth.AuthorizationServiceConfiguration
+import org.json.JSONException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -30,9 +33,43 @@ class LoginController @Inject constructor(private val context: Context) {
         authorizationService.performAuthorizationRequest(request, pendingIntent)
     }
 
+    fun logout() {
+        setAuthState(null)
+
+        val intent = Intent(context, LoginActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun setAuthState(authState: AuthState?) {
+        if (authState != null) {
+            context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
+                    .edit()
+                    .putString(AUTH_STATE, authState.jsonSerializeString())
+                    .commit()
+        } else {
+            context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
+                    .edit()
+                    .remove(AUTH_STATE)
+                    .apply()
+        }
+    }
+
+    fun getAuthState(): AuthState? {
+        val jsonString = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
+                .getString(AUTH_STATE, null)
+
+        return if (jsonString?.isNotEmpty() == true) {
+            AuthState.jsonDeserialize(jsonString)
+        } else {
+            null
+        }
+    }
+
     companion object {
         private const val CODE = "code"
         private const val SCOPES = "openid profile email"
+        private const val SHARED_PREFERENCES_NAME = "AuthStatePreference"
+        private const val AUTH_STATE = "AUTH_STATE"
 
         private val AUTH_URI = Uri.parse("https://accounts.google.com/o/oauth2/v2/auth")
         private val TOKEN_URI = Uri.parse("https://www.googleapis.com/oauth2/v4/token")

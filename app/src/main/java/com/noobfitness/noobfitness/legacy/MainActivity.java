@@ -1,7 +1,6 @@
 package com.noobfitness.noobfitness.legacy;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
@@ -20,6 +19,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.noobfitness.noobfitness.R;
+import com.noobfitness.noobfitness.auth.LoginController;
+import com.noobfitness.noobfitness.dagger.DaggerAppComponent;
+import com.noobfitness.noobfitness.dagger.InjectedApplication;
 import com.squareup.picasso.Picasso;
 
 import net.openid.appauth.AuthState;
@@ -28,8 +30,9 @@ import net.openid.appauth.AuthorizationResponse;
 import net.openid.appauth.AuthorizationService;
 import net.openid.appauth.TokenResponse;
 
-import org.json.JSONException;
 import org.json.JSONObject;
+
+import javax.inject.Inject;
 
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
@@ -40,6 +43,9 @@ import okhttp3.Response;
 public class MainActivity extends Activity {
 
     private static final String LOG_TAG = "MainActivity";
+
+    @Inject
+    LoginController loginController;
 
     AuthState mAuthState;
 
@@ -53,6 +59,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ((InjectedApplication) getApplication()).getAppComponent().inject(this);
+
         setContentView(R.layout.legacy_activity_main);
 
         mMakeApiCall = findViewById(R.id.makeApiCall);
@@ -112,7 +121,8 @@ public class MainActivity extends Activity {
                     } else {
                         if (tokenResponse != null) {
                             authState.update(tokenResponse, exception);
-                            persistAuthState(authState);
+                            loginController.setAuthState(authState);
+                            enablePostAuthorizationFlows();
                             Log.i(LOG_TAG, String.format("Token Response [ Access Token: %s, ID Token: %s ]", tokenResponse.accessToken, tokenResponse.idToken));
                         }
                     }
@@ -121,18 +131,8 @@ public class MainActivity extends Activity {
         }
     }
 
-    private static final String SHARED_PREFERENCES_NAME = "AuthStatePreference";
-    private static final String AUTH_STATE = "AUTH_STATE";
-
-    private void persistAuthState(@NonNull AuthState authState) {
-        getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit()
-                .putString(AUTH_STATE, authState.jsonSerializeString())
-                .commit();
-        enablePostAuthorizationFlows();
-    }
-
     private void enablePostAuthorizationFlows() {
-        mAuthState = restoreAuthState();
+        mAuthState = loginController.getAuthState();
         if (mAuthState != null && mAuthState.isAuthorized()) {
             if (mMakeApiCall.getVisibility() == View.GONE) {
                 mMakeApiCall.setVisibility(View.VISIBLE);
@@ -148,27 +148,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void clearAuthState() {
-        getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
-                .edit()
-                .remove(AUTH_STATE)
-                .apply();
-    }
-
-    @Nullable
-    private AuthState restoreAuthState() {
-        String jsonString = getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
-                .getString(AUTH_STATE, null);
-        if (!TextUtils.isEmpty(jsonString)) {
-            try {
-                return AuthState.jsonDeserialize(jsonString);
-            } catch (JSONException jsonException) {
-                // should never happen
-            }
-        }
-        return null;
-    }
-
     public static class SignOutListener implements Button.OnClickListener {
 
         private final MainActivity mMainActivity;
@@ -179,9 +158,7 @@ public class MainActivity extends Activity {
 
         @Override
         public void onClick(View view) {
-            mMainActivity.mAuthState = null;
-            mMainActivity.clearAuthState();
-            mMainActivity.enablePostAuthorizationFlows();
+            mMainActivity.loginController.logout();
         }
     }
 
