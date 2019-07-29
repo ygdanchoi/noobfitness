@@ -29,7 +29,7 @@ class UserActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_user)
+        setContentView(R.layout.user_activity)
 
         (application as InjectedApplication).appComponent.inject(this)
 

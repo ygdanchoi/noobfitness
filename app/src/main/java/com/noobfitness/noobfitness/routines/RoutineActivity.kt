@@ -26,7 +26,7 @@ class RoutineActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_routines)
+        setContentView(R.layout.routine_activity)
 
         (application as InjectedApplication).appComponent.inject(this)
 

@@ -20,13 +20,13 @@ public class LegacyWorkoutActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_day);
+        setContentView(R.layout.workout_activity);
 
         Bundle bundle = getIntent().getExtras();
         ArrayList<LegacyExercise> exercises = bundle.getParcelableArrayList("exercises");
 
         LegacyExerciseAdapter itemsAdapter = new LegacyExerciseAdapter(exercises);
-        RecyclerView recyclerView = findViewById(R.id.workout_layout);
+        RecyclerView recyclerView = findViewById(R.id.workoutExercisesList);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(itemsAdapter);
 

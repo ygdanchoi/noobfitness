@@ -34,7 +34,7 @@ class AuthActivity : Activity() {
         super.onCreate(savedInstanceState)
         (application as InjectedApplication).appComponent.inject(this)
 
-        setContentView(R.layout.activity_auth)
+        setContentView(R.layout.auth_activity)
 
         button = findViewById(R.id.signInButton)
         button.setOnClickListener {
