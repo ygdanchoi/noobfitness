@@ -5,6 +5,7 @@ import com.noobfitness.noobfitness.auth.AuthService
 import com.noobfitness.noobfitness.auth.UserManager
 import dagger.Module
 import dagger.Provides
+import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 @Module
@@ -19,5 +20,11 @@ class ServicesModule {
     @Singleton
     fun provideAuthStateManager(application: Application): UserManager {
         return UserManager(application.applicationContext)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGsonConverterFactory(): GsonConverterFactory {
+        return GsonConverterFactory.create()
     }
 }

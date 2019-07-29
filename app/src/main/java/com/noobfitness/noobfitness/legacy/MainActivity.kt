@@ -55,7 +55,7 @@ class MainActivity : Activity() {
         val mainLinearLayout = findViewById<LinearLayout>(R.id.activity_main)
 
         fourDayDefault = Button(this)
-        fourDayDefault.text = userManager.get()?.routines
+        fourDayDefault.text = userManager.get()?.routines.toString()
         fourDayDefault.gravity = Gravity.LEFT
         fourDayDefault.setPadding(96, 96, 96, 96)
         fourDayDefault.typeface = Typeface.create("sans-serif-light", Typeface.NORMAL)

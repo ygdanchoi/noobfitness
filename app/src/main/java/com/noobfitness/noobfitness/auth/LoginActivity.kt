@@ -2,23 +2,24 @@ package com.noobfitness.noobfitness.auth
 
 import android.app.Activity
 import android.content.Intent
-import android.os.AsyncTask
 import android.os.Bundle
 
 import com.google.android.gms.common.SignInButton
 import com.noobfitness.noobfitness.dagger.InjectedApplication
 import com.noobfitness.noobfitness.R
+import com.noobfitness.noobfitness.api.ApiService
 import com.noobfitness.noobfitness.legacy.MainActivity
 import net.openid.appauth.*
-import okhttp3.FormBody
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 import javax.inject.Inject
 
 class LoginActivity : Activity() {
 
+    @Inject
+    lateinit var apiService: ApiService
     @Inject
     lateinit var authService: AuthService
     @Inject
@@ -58,52 +59,32 @@ class LoginActivity : Activity() {
     private fun onAuthorizationResponse(response: AuthorizationResponse?, error: AuthorizationException?) {
         if (response != null) {
             authState = AuthState(response, error)
-            authService.performTokenRequest(response.createTokenExchangeRequest(), ::onGAuthTokenResponse)
+            authService.performTokenRequest(response.createTokenExchangeRequest(), ::onAccessTokenResponse)
         }
     }
 
-    private fun onGAuthTokenResponse(response: TokenResponse?, error: AuthorizationException?) {
+    private fun onAccessTokenResponse(response: TokenResponse?, error: AuthorizationException?) {
         if (response != null) {
             authState?.apply { update(response, error) }
 
-            object : AsyncTask<String, Void, User>() {
-                override fun doInBackground(vararg tokens: String): User? {
-                    val client = OkHttpClient()
-                    val requestBody = FormBody.Builder()
-                            .add("access_token", tokens[0])
-                            .build()
-                    val request = Request.Builder()
-                            .post(requestBody)
-                            .url("http://10.0.2.2:5000/api/auth/google")
-                            .build()
-                    val response = client.newCall(request).execute()
-                    val authToken = response.header("x-auth-token")!!
-                    val jsonBody = response.body()!!.string()
-                    val userJson = JSONObject(jsonBody)
-
-                    val id = userJson.optString("_id", null)
-                    val googleId = userJson.optString("googleId", null)
-                    val username = userJson.optString("username", null)
-                    val avatar = userJson.optString("avatar", null)
-                    val routines = userJson.optString("routines", null)
-
-                    return User(
-                            authToken = authToken,
-                            id = id,
-                            googleId = googleId,
-                            username = username,
-                            avatar = avatar,
-                            routines = routines
-                    )
+            apiService.authGoogle(authState?.accessToken).enqueue(object : Callback<User> {
+                override fun onResponse(call: Call<User>, response: Response<User>) {
+                    onAuthTokenResponse(call, response)
                 }
 
-                override fun onPostExecute(user: User?) {
-                    if (user != null) {
-                        userManager.set(user)
-                        login()
-                    }
+                override fun onFailure(call: Call<User>, error: Throwable) {
                 }
-            }.execute(authState?.accessToken)
+            })
+        }
+    }
+
+    private fun onAuthTokenResponse(call: Call<User>, response: Response<User>) {
+        if (response.isSuccessful) {
+            val authToken = response.headers().get("x-auth-token")
+            val user = response.body()?.copy(authToken = authToken)
+
+            userManager.set(user)
+            login()
         }
     }
 
