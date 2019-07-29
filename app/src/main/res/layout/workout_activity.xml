@@ -4,14 +4,14 @@
     android:id="@+id/activityMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.noobfitness.noobfitness.workout.LegacyWorkoutActivity">
+    tools:context="com.noobfitness.noobfitness.workout.WorkoutActivity">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/workoutExercisesList"
+            android:id="@+id/workoutExerciseList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 

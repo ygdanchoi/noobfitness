@@ -2,6 +2,7 @@ package com.noobfitness.noobfitness.api
 
 import com.noobfitness.noobfitness.user.User
 import com.noobfitness.noobfitness.routines.Routine
+import com.noobfitness.noobfitness.workout.Workout
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -17,4 +18,10 @@ interface ApiEndpoints {
             @Path("routineId") routineId: String,
             @Header("x-auth-token") authToken: String?
     ): Call<Routine>
+
+    @GET("workouts/{workoutId}/")
+    fun getWorkout(
+            @Path("workoutId") workoutId: String,
+            @Header("x-auth-token") authToken: String?
+    ): Call<Workout>
 }

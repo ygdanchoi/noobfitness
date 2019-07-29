@@ -25,15 +25,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.noobfitness.noobfitness.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Dan on 11/23/2016.
  */
 
+@Deprecated
 public class LegacyExerciseAdapter extends RecyclerView.Adapter<LegacyExerciseAdapter.ExerciseHolder> {
 
-    private ArrayList<LegacyExercise> exercises;
+    private List<LegacyExercise> exercises = new ArrayList<>();
 
+    @Deprecated
     public static class ExerciseHolder extends RecyclerView.ViewHolder {
 
         public TextView nameTextView;
@@ -63,8 +66,12 @@ public class LegacyExerciseAdapter extends RecyclerView.Adapter<LegacyExerciseAd
 
     }
 
-    public LegacyExerciseAdapter(ArrayList<LegacyExercise> exercises) {
+    public void setExercises(List<LegacyExercise> exercises) {
         this.exercises = exercises;
+    }
+
+    public List<LegacyExercise> getExercises() {
+        return exercises;
     }
 
     @Override

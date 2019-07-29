@@ -3,6 +3,7 @@ package com.noobfitness.noobfitness.api
 import com.noobfitness.noobfitness.user.UserManager
 import com.noobfitness.noobfitness.user.User
 import com.noobfitness.noobfitness.routines.Routine
+import com.noobfitness.noobfitness.workout.Workout
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -30,6 +31,10 @@ class ApiService @Inject constructor(
 
     fun getRoutine(routineId: String): Call<Routine> {
         return endpoints.getRoutine(routineId, userManager.get()?.authToken)
+    }
+
+    fun getWorkout(workoutId: String): Call<Workout> {
+        return endpoints.getWorkout(workoutId, userManager.get()?.authToken)
     }
 
     companion object {

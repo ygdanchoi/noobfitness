@@ -32,6 +32,6 @@
         </activity>
         <activity android:name="com.noobfitness.noobfitness.user.UserActivity" />
         <activity android:name="com.noobfitness.noobfitness.routines.RoutineActivity" />
-        <activity android:name="com.noobfitness.noobfitness.workout.LegacyWorkoutActivity" />
+        <activity android:name="com.noobfitness.noobfitness.workout.WorkoutActivity" />
     </application>
 </manifest>
