@@ -8,7 +8,8 @@ import com.google.android.gms.common.SignInButton
 import com.noobfitness.noobfitness.dagger.InjectedApplication
 import com.noobfitness.noobfitness.R
 import com.noobfitness.noobfitness.api.ApiService
-import com.noobfitness.noobfitness.legacy.MainActivity
+import com.noobfitness.noobfitness.main.MainActivity
+import com.noobfitness.noobfitness.main.User
 import net.openid.appauth.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -16,7 +17,7 @@ import retrofit2.Response
 
 import javax.inject.Inject
 
-class LoginActivity : Activity() {
+class AuthActivity : Activity() {
 
     @Inject
     lateinit var apiService: ApiService
@@ -32,9 +33,9 @@ class LoginActivity : Activity() {
         super.onCreate(savedInstanceState)
         (application as InjectedApplication).appComponent.inject(this)
 
-        setContentView(R.layout.activity_login)
+        setContentView(R.layout.activity_auth)
 
-        button = findViewById(R.id.sign_in_button)
+        button = findViewById(R.id.signInButton)
         button.setOnClickListener {
             val intent = authService.getAuthorizationRequestIntent()
             startActivityForResult(intent, RC_AUTH)

@@ -1,6 +1,6 @@
 package com.noobfitness.noobfitness.api
 
-import com.noobfitness.noobfitness.auth.User
+import com.noobfitness.noobfitness.main.User
 import retrofit2.Call
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded

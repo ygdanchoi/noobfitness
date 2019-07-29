@@ -1,4 +1,4 @@
-package com.noobfitness.noobfitness.auth
+package com.noobfitness.noobfitness.main
 
 import com.google.gson.annotations.SerializedName
 
@@ -9,9 +9,4 @@ data class User(
         val avatar: String,
         val routines: List<UserRoutine>,
         val authToken: String?
-)
-
-data class UserRoutine(
-        @SerializedName("_id") val id: String,
-        val name: String
 )

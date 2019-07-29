@@ -34,7 +34,7 @@ class AuthService @Inject constructor(private val context: Context) {
     }
 
     fun logout() {
-        val intent = Intent(context, LoginActivity::class.java).apply {
+        val intent = Intent(context, AuthActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
         }
