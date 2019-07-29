@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
  * Created by Dan on 11/17/2016.
  */
 
+@Deprecated
 public class LegacyExercise implements Parcelable {
 
     private String name;
