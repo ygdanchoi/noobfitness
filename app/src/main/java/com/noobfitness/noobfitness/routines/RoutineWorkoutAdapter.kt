@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.noobfitness.noobfitness.R
-import com.noobfitness.noobfitness.main.UserRoutine
 
 class RoutineWorkoutAdapter : RecyclerView.Adapter<RoutineWorkoutViewHolder>() {
     var routineWorkouts: List<RoutineWorkout> = listOf()
@@ -13,7 +12,6 @@ class RoutineWorkoutAdapter : RecyclerView.Adapter<RoutineWorkoutViewHolder>() {
         val inflater = LayoutInflater.from(parent.context)
         val view = inflater.inflate(R.layout.routine_workout_list_item, parent, false)
         return RoutineWorkoutViewHolder(view)
-
     }
 
     override fun getItemCount(): Int {

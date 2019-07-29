@@ -1,4 +1,4 @@
-package com.noobfitness.noobfitness.legacy;
+package com.noobfitness.noobfitness.workout;
 
 import android.animation.LayoutTransition;
 import android.app.Activity;
@@ -15,7 +15,7 @@ import com.noobfitness.noobfitness.R;
 
 import java.util.ArrayList;
 
-public class ExercisesActivity extends Activity {
+public class LegacyWorkoutActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,9 +23,9 @@ public class ExercisesActivity extends Activity {
         setContentView(R.layout.activity_day);
 
         Bundle bundle = getIntent().getExtras();
-        ArrayList<Exercise> exercises = bundle.getParcelableArrayList("exercises");
+        ArrayList<LegacyExercise> exercises = bundle.getParcelableArrayList("exercises");
 
-        ExerciseAdapter itemsAdapter = new ExerciseAdapter(exercises);
+        LegacyExerciseAdapter itemsAdapter = new LegacyExerciseAdapter(exercises);
         RecyclerView recyclerView = findViewById(R.id.workout_layout);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(itemsAdapter);
@@ -35,7 +35,7 @@ public class ExercisesActivity extends Activity {
     public void headClicked(View head) {
         // i.e. the ListView
         RecyclerView grandParent = (RecyclerView) head.getParent().getParent().getParent();
-        // i.e. @id/exercise_item
+        // i.e. @id/workout_exercise_list_item
         LinearLayout parent = (LinearLayout) head.getParent();
         LinearLayout exerciseBody = (LinearLayout) parent.findViewById(R.id.exercise_body);
         ImageView expandArrow = (ImageView) head.findViewById(R.id.expand_arrow);

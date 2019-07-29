@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="@dimen/activity_vertical_margin"
-    tools:context="com.noobfitness.noobfitness.routines.RoutinesActivity">
+    tools:context="com.noobfitness.noobfitness.routines.RoutineActivity">
 
     <ScrollView
         android:layout_width="match_parent"

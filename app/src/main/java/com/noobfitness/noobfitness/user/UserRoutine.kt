@@ -1,4 +1,4 @@
-package com.noobfitness.noobfitness.main
+package com.noobfitness.noobfitness.user
 
 import com.google.gson.annotations.SerializedName
 

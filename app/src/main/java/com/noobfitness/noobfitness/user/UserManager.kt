@@ -1,8 +1,7 @@
-package com.noobfitness.noobfitness.auth
+package com.noobfitness.noobfitness.user
 
 import android.content.Context
 import com.google.gson.Gson
-import com.noobfitness.noobfitness.main.User
 import javax.inject.Inject
 import javax.inject.Singleton
 

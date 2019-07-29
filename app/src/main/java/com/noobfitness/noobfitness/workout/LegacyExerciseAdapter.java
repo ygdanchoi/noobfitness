@@ -1,4 +1,4 @@
-package com.noobfitness.noobfitness.legacy;
+package com.noobfitness.noobfitness.workout;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
@@ -30,9 +30,9 @@ import java.util.ArrayList;
  * Created by Dan on 11/23/2016.
  */
 
-public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ExerciseHolder> {
+public class LegacyExerciseAdapter extends RecyclerView.Adapter<LegacyExerciseAdapter.ExerciseHolder> {
 
-    private ArrayList<Exercise> exercises;
+    private ArrayList<LegacyExercise> exercises;
 
     public static class ExerciseHolder extends RecyclerView.ViewHolder {
 
@@ -63,20 +63,20 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
 
     }
 
-    public ExerciseAdapter(ArrayList<Exercise> exercises) {
+    public LegacyExerciseAdapter(ArrayList<LegacyExercise> exercises) {
         this.exercises = exercises;
     }
 
     @Override
     public ExerciseHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        View view = layoutInflater.inflate(R.layout.exercise_item, parent, false);
+        View view = layoutInflater.inflate(R.layout.workout_exercise_list_item, parent, false);
         return new ExerciseHolder(view);
     }
 
     @Override
     public void onBindViewHolder(ExerciseHolder holder, int position) {
-        final Exercise exercise = exercises.get(position);
+        final LegacyExercise exercise = exercises.get(position);
         if (exercise.getListItemView() == null) {
             holder.nameTextView.setText(exercise.getName());
             holder.secondaryTextView.setText(exercise.getSecondary());
@@ -112,7 +112,7 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
         return exercises.size();
     }
 
-    private LinearLayout generateCheckboxes(View listItemView, Exercise exercise) {
+    private LinearLayout generateCheckboxes(View listItemView, LegacyExercise exercise) {
 //            if (exercise.getRepsLayout() == null) {
         final Context context = listItemView.getContext();
         LinearLayout repsLayout = (LinearLayout) listItemView.findViewById(R.id.exercise_reps);
@@ -128,7 +128,7 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
             rep.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    // i.e. @id/exercise_item
+                    // i.e. @id/workout_exercise_list_item
                     LinearLayout greatGrandparent = (LinearLayout) buttonView.getParent().getParent().getParent();
                     TextView repsCounter = (TextView) greatGrandparent.findViewById(R.id.exercise_reps_counter);
                     ProgressBar repsProgress = (ProgressBar) greatGrandparent.findViewById(R.id.exercise_reps_progress);

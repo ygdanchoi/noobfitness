@@ -8,8 +8,9 @@ import com.google.android.gms.common.SignInButton
 import com.noobfitness.noobfitness.dagger.InjectedApplication
 import com.noobfitness.noobfitness.R
 import com.noobfitness.noobfitness.api.ApiService
-import com.noobfitness.noobfitness.main.MainActivity
-import com.noobfitness.noobfitness.main.User
+import com.noobfitness.noobfitness.user.UserActivity
+import com.noobfitness.noobfitness.user.User
+import com.noobfitness.noobfitness.user.UserManager
 import net.openid.appauth.*
 import retrofit2.Call
 import retrofit2.Callback
@@ -92,7 +93,7 @@ class AuthActivity : Activity() {
     private fun login() {
         button.isEnabled = false
 
-        val intent = Intent(this, MainActivity::class.java).apply {
+        val intent = Intent(this, UserActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
         }

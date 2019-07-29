@@ -1,4 +1,4 @@
-package com.noobfitness.noobfitness.main
+package com.noobfitness.noobfitness.user
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -12,7 +12,6 @@ class UserRoutineAdapter : RecyclerView.Adapter<UserRoutineViewHolder>() {
         val inflater = LayoutInflater.from(parent.context)
         val view = inflater.inflate(R.layout.user_routine_list_item, parent, false)
         return UserRoutineViewHolder(view)
-
     }
 
     override fun getItemCount(): Int {

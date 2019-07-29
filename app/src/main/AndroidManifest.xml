@@ -30,8 +30,8 @@
                 <data android:scheme="${appAuthRedirectScheme}"/>
             </intent-filter>
         </activity>
-        <activity android:name="com.noobfitness.noobfitness.main.MainActivity" />
-        <activity android:name="com.noobfitness.noobfitness.routines.RoutinesActivity" />
-        <activity android:name="com.noobfitness.noobfitness.legacy.ExercisesActivity" />
+        <activity android:name="com.noobfitness.noobfitness.user.UserActivity" />
+        <activity android:name="com.noobfitness.noobfitness.routines.RoutineActivity" />
+        <activity android:name="com.noobfitness.noobfitness.workout.LegacyWorkoutActivity" />
     </application>
 </manifest>

@@ -1,4 +1,4 @@
-package com.noobfitness.noobfitness.legacy;
+package com.noobfitness.noobfitness.workout;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -9,7 +9,7 @@ import android.widget.LinearLayout;
  * Created by Dan on 11/17/2016.
  */
 
-public class Exercise implements Parcelable {
+public class LegacyExercise implements Parcelable {
 
     private String name;
     private String secondary;
@@ -22,8 +22,8 @@ public class Exercise implements Parcelable {
 
     private View listItemView = null;
 
-    public Exercise(String name, String muscle, int[] reps,
-                    String weightValue, String weightDescription, int drawable) {
+    public LegacyExercise(String name, String muscle, int[] reps,
+                          String weightValue, String weightDescription, int drawable) {
         this.name = name;
         this.muscle = muscle;
         this.reps = reps;
@@ -33,7 +33,7 @@ public class Exercise implements Parcelable {
         setSecondary();
     }
 
-    public Exercise(Parcel in) {
+    public LegacyExercise(Parcel in) {
         this.name = in.readString();
         this.muscle = in.readString();
         reps = new int[in.readInt()];
@@ -60,12 +60,12 @@ public class Exercise implements Parcelable {
         dest.writeInt(drawable);
     }
 
-    public static final Parcelable.Creator<Exercise> CREATOR = new Parcelable.Creator<Exercise>() {
-        public Exercise createFromParcel(Parcel in) {
-            return new Exercise(in);
+    public static final Parcelable.Creator<LegacyExercise> CREATOR = new Parcelable.Creator<LegacyExercise>() {
+        public LegacyExercise createFromParcel(Parcel in) {
+            return new LegacyExercise(in);
         }
-        public Exercise[] newArray(int size) {
-            return new Exercise[size];
+        public LegacyExercise[] newArray(int size) {
+            return new LegacyExercise[size];
         }
     };
 

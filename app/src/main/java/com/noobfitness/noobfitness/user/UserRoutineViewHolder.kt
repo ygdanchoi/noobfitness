@@ -1,11 +1,12 @@
-package com.noobfitness.noobfitness.main
+package com.noobfitness.noobfitness.user
 
 import android.content.Intent
 import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.noobfitness.noobfitness.R
-import com.noobfitness.noobfitness.routines.RoutinesActivity
+import com.noobfitness.noobfitness.routines.RoutineActivity
+import com.noobfitness.noobfitness.routines.RoutineActivity.Companion.EXTRA_ROUTINE_ID
 
 class UserRoutineViewHolder(private var view: View) : RecyclerView.ViewHolder(view) {
     var name = view.findViewById<TextView>(R.id.userRoutineName)
@@ -14,8 +15,8 @@ class UserRoutineViewHolder(private var view: View) : RecyclerView.ViewHolder(vi
         name.text = userRoutine.name
 
         view.setOnClickListener { view ->
-            val intent = Intent(view.context, RoutinesActivity::class.java).apply {
-                putExtra("ROUTINE_ID", userRoutine.id)
+            val intent = Intent(view.context, RoutineActivity::class.java).apply {
+                putExtra(EXTRA_ROUTINE_ID, userRoutine.id)
             }
 
             view.context.startActivity(intent)
